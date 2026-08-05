@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>王者荣耀春节皮肤购买 - 逻辑完善版</title>
+    <script src="https://cdn.staticfile.net/vue/3.3.4/vue.global.min.js"></script>
+    <style>
+        /* =========================================================
+           🎯 坐标与间距配置区 (直接修改这里的数字即可)
+           ========================================================= */
+        :root {
+            /* --- 1. 主界面：大模块位置 --- */
+            --preview-top: 90px;       /* 预览图距离顶部 */
+            --preview-left: 205px;      /* 预览图距离左侧 */
+
+            --keys-top: 140px;        /* 左上角按键区距离顶部 */
+            --keys-left: 230px;       /* 左上角按键区距离左侧 */
+
+            --list-offset-top: 90px;  /* 右侧列表整体向下偏移 */
+            --list-offset-right: 95px;/* 右侧列表整体向左偏移 (距离右侧的距离) */
+
+            --checkout-bottom: 100px;  /* 购买按钮距离底部 */
+            --checkout-right: 20px;    /* 购买按钮距离右侧 */
+
+            /* --- 2. 主界面：列表内部间距 --- */
+            --bundle-gap: 30px;       /* 第一行(礼包)与第二行的间距 */
+            --skin-row-gap: 40px;     /* 皮肤列表的行间距 */
+            --skin-col-gap: 15px;     /* 皮肤列表的列间距(左右) */
+
+            /* --- 3. 主界面：商品元素细节坐标 --- */
+            --item-frame-top: -5px;    /* 选中框距离商品图顶部 */
+            --item-frame-left: -5px;   /* 选中框距离商品图左侧 */
+
+            --item-checkbox-top: -5px; /* 勾选框距离商品图顶部 (可随意移到外部，不会被裁切) */
+            --item-checkbox-left: -5px;/* 勾选框距离商品图左侧 */
+
+            --item-price-bottom: -20px; /* 价格文字距离商品图底部 */
+            --item-price-left: 0px;   /* 价格文字距离商品图左侧 (默认0，靠居中对齐) */
+
+            --checkout-text-top: 20px; /* 购买按钮文字整体向下偏移量 */
+            --checkout-text-left: 60px;/* 购买按钮文字整体向右偏移量 */
+
+            /* --- 4. 二次确认弹窗：坐标配置 --- */
+            --confirm-price-top: 120px;    /* 总价格距离弹窗顶部 */
+            --confirm-price-left: 0px;     /* 总价格距离弹窗左侧 (默认0，靠居中对齐) */
+
+            --confirm-items-top: 200px;    /* 商品列表距离弹窗顶部 */
+            --confirm-items-left: 0px;     /* 商品列表距离弹窗左侧 (默认0，靠居中对齐) */
+            --confirm-item-gap: 15px;      /* 确认弹窗中，商品图标之间的间距 */
+
+            --confirm-btn-bottom: 30px;    /* 确认购买按钮距离弹窗底部 */
+            --confirm-btn-left: 0px;       /* 确认购买按钮距离弹窗左侧 (默认0，靠居中对齐) */
+
+        }
+        /* ========================================================= */
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background-color: #000;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        img { display: block; } 
+
+        #app {
+            width: 1560px; height: 720px; position: relative;
+            overflow: hidden; background-color: #1a1a1a; 
+        }
+
+        .original-price { font-size: 14px; color: rgba(255,255,255,0.6); text-decoration: line-through; margin-left: 8px; }
+
+        .modal-mask {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); 
+            display: flex; justify-content: center; align-items: center; z-index: 100;
+        }
+
+        .purchase-modal { position: relative; display: inline-block; }
+        .modal-bg-under { position: relative; z-index: 1; }
+        .preview-img-over { position: absolute; top: var(--preview-top); left: var(--preview-left); z-index: 2; }
+
+        .modal-content-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 3; display: flex; pointer-events: none; 
+        }
+        .modal-content-layer > * { pointer-events: auto; }
+
+        .preview-section { width: 1020px; position: relative; height: 100%; }
+        
+        .recommend-keys { position: absolute; top: var(--keys-top); left: var(--keys-left); z-index: 10; }
+        .key-list { display: flex; gap: 10px; align-items: center; }
+        .key-item { position: relative; display: inline-block; cursor: pointer; }
+        .key-item .frame-selected {
+            position: absolute; top: -2px; left: -2px; width: calc(100% + 4px); height: calc(100% + 4px);
+            z-index: 2; pointer-events: none;
+        }
+        
+        /* 需求4：左上角按键价格样式 */
+        .key-price-text {
+            position: absolute; top: var(--key-price-top); left: var(--key-price-left);
+            display: flex; align-items: center; color: #fff; font-size: 14px; width: max-content;
+        }
+        .key-price-text img { margin-right: 4px; }
+
+        .list-section { 
+            flex: 1; padding: 0; position: relative; 
+            display: flex; flex-direction: column; align-items: flex-end;
+            top: var(--list-offset-top); right: var(--list-offset-right);
+        }
+        
+        .items-container { width: max-content; overflow: visible; padding-right: 10px; }
+
+        .bundle-box { margin-bottom: var(--bundle-gap); }
+        .skins-grid { 
+            display: grid; grid-template-columns: auto auto; 
+            row-gap: var(--skin-row-gap); column-gap: var(--skin-col-gap); 
+        }
+
+        .item-box { position: relative; cursor: pointer; display: inline-block; }
+        .item-box .frame-selected { 
+            position: absolute; top: var(--item-frame-top); left: var(--item-frame-left); 
+            pointer-events: none; z-index: 2; 
+        }
+
+        .price-text {
+            position: absolute; bottom: var(--item-price-bottom); left: var(--item-price-left); 
+            width: 100%; text-align: center; color: #fff; font-size: 14px; z-index: 3;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .price-text img { margin-right: 4px; }
+
+        .item-box .img-checkbox { 
+            position: absolute; top: var(--item-checkbox-top); left: var(--item-checkbox-left); 
+            cursor: pointer; z-index: 5; 
+        }
+
+        .checkout-section { position: absolute; bottom: var(--checkout-bottom); right: var(--checkout-right); }
+        .btn-checkout { position: relative; cursor: pointer; display: inline-block; }
+        .btn-checkout .content {
+            position: absolute; top: var(--checkout-text-top); left: var(--checkout-text-left); 
+            width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; 
+            color: #fff; font-size: 24px; font-weight: bold;
+        }
+        .btn-checkout .content img { margin-right: 8px; }
+
+        .confirm-modal { position: relative; display: inline-block; }
+        .confirm-content-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; 
+        }
+        .confirm-content-layer > * { pointer-events: auto; }
+
+        .confirm-price {
+            position: absolute; top: var(--confirm-price-top); left: var(--confirm-price-left);
+            width: 100%; color: #f8e4a5; font-size: 32px; font-weight: bold;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .confirm-price img { margin-right: 10px; }
+        
+        .confirm-items-wrapper { 
+            position: absolute; top: var(--confirm-items-top); left: var(--confirm-items-left);
+            width: 100%; display: flex; justify-content: center;
+        }
+        .confirm-items-list { display: flex; gap: var(--confirm-item-gap); width: max-content; }
+        .confirm-item { text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .confirm-item p { color: #fff; font-size: 12px; margin-top: 8px; }
+
+        .confirm-btn-group { 
+            position: absolute; bottom: var(--confirm-btn-bottom); left: var(--confirm-btn-left);
+            width: 100%; display: flex; justify-content: center; cursor: pointer; 
+        }
+        .btn-close { position: absolute; top: 15px; right: 20px; cursor: pointer; z-index: 20; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="modal-mask" v-if="showPurchaseModal">
+        <div class="purchase-modal">
+            
+            <img src="bg_modal.png" class="modal-bg-under">
+            <img :src="currentDisplayPreviewImg" class="preview-img-over">
+            
+            <div class="modal-content-layer">
+                <div class="preview-section">
+                    <div class="recommend-keys">
+                        <div class="key-list">
+                            <div class="img-checkbox" @click="toggleCurrentKeys" style="position: relative; top: 0; left: 0; cursor: pointer; z-index: 5;">
+                                <img :src="isCurrentKeysChecked ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
+                            </div>
+                            <div class="key-item" v-for="key in currentDisplayKeys" :key="key.id" @click="selectKeyPreview(key.id)" v-show="currentPreviewId !== bundleData.id">
+                                <img src="frame_selected.png" class="frame-selected" v-if="currentPreviewKeyId === key.id">
+                                <img :src="key.icon">
+                            </div>
+                        </div>
+                        <!-- 需求4：单皮肤左上角按键下方显示商品价格 -->
+                        <div class="key-price-text" v-show="currentPreviewId !== bundleData.id && currentDisplayKeys.length > 0">
+                            <img src="icon_gem.png">
+                            99 <span class="original-price">188</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="list-section">
+                    <div class="items-container">
+                        <div class="item-box bundle-box" @click="selectPreview(bundleData.id)">
+                            <img src="frame_selected-2.png" class="frame-selected" v-if="currentPreviewId === bundleData.id && !currentPreviewKeyId">
+                            <div class="img-checkbox" @click.stop="toggleCheck(bundleData.id)">
+                                <img :src="isBundleChecked ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
+                            </div>
+                            <img :src="bundleData.icon">
+                            <div class="price-text">
+                                <img src="icon_gem.png">
+                                {{ bundleData.price }} <span class="original-price">{{ bundleData.originalPrice }}</span>
+                            </div>
+                        </div>
+
+                        <div class="skins-grid">
+                            <div class="item-box" v-for="skin in skinsData" :key="skin.id" @click="selectPreview(skin.id)">
+                                <img src="frame_selected.png" class="frame-selected" v-if="currentPreviewId === skin.id && !currentPreviewKeyId">
+                                <div class="img-checkbox" @click.stop="toggleCheck(skin.id)">
+                                    <img :src="checkedItemIds.includes(skin.id) ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
+                                </div>
+                                <img :src="skin.icon">
+                                <div class="price-text">
+                                    <img src="icon_gem.png">
+                                    {{ getSkinDisplayPrice(skin.id) }} <span class="original-price">{{ skin.originalPrice }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checkout-section">
+                        <div class="btn-checkout" @click="openConfirmModal">
+                            <img src="btn_buy_blue.png">
+                            <div class="content">
+                                <img src="icon_gem.png">
+                                {{ finalTotalPrice }}
+                                <span class="original-price">{{ finalOriginalPrice }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" v-if="showConfirmModal">
+        <div class="confirm-modal">
+            <img src="bg_confirm.png">
+            <div class="confirm-content-layer">
+                <img src="btn_close.png" class="btn-close" @click="showConfirmModal = false">
+                
+                <div class="confirm-price">
+                    <img src="icon_gem.png">
+                    {{ finalTotalPrice }}
+                </div>
+                
+                <div class="confirm-items-wrapper">
+                    <div class="confirm-items-list">
+                        <div class="confirm-item" v-for="item in finalCheckedItemsData" :key="item.id">
+                            <img :src="item.icon">
+                            <p>{{ item.name }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="confirm-btn-group" @click="executePurchase">
+                    <img src="btn_confirm.png">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const { createApp, ref, computed } = Vue;
+
+createApp({
+    setup() {
+        const showPurchaseModal = ref(true);
+        const showConfirmModal = ref(false);
+        
+        const currentPreviewId = ref('skin_1');
+        const currentPreviewKeyId = ref(null); 
+
+        const checkedItemIds = ref(['skin_1']); 
+        const checkedKeyIds = ref([]);          
+        const useLuckyCard = ref(true); 
+
+        // 需求1：全套礼包基础价格改为 7740，原价 10728
+        const bundleData = { id: 'bundle_1', name: '全套皮肤+按键礼包', price: 7740, originalPrice: 10728, icon: 'item_bundle.png', previewImg: 'preview_bundle.png' };
+        
+        const skinsData = [
+            { id: 'skin_1', name: '神骥·鸣幻洲', price: 1430, originalPrice: 1788, icon: 'item_skin1.png', previewImg: 'preview_skin1.png', keyId: 'key_1' },
+            { id: 'skin_2', name: '神骥·越千峰', price: 1430, originalPrice: 1788, icon: 'item_skin2.png', previewImg: 'preview_skin2.png', keyId: 'key_2' },
+            { id: 'skin_3', name: '皮肤3', price: 1430, originalPrice: 1788, icon: 'item_skin3.png', previewImg: 'preview_skin3.png', keyId: 'key_3' },
+            { id: 'skin_4', name: '皮肤4', price: 1430, originalPrice: 1788, icon: 'item_skin4.png', previewImg: 'preview_skin4.png', keyId: 'key_4' },
+            { id: 'skin_5', name: '皮肤5', price: 1430, originalPrice: 1788, icon: 'item_skin5.png', previewImg: 'preview_skin5.png', keyId: 'key_5' },
+            { id: 'skin_6', name: '皮肤6', price: 1430, originalPrice: 1788, icon: 'item_skin6.png', previewImg: 'preview_skin6.png', keyId: 'key_6' },
+        ];
+
+        const keysData = [
+            { id: 'key_1', name: '鸣幻洲按键', price: 99, originalPrice: 188, icon: 'key_1.png', previewImg: 'preview_key1.png' },
+            { id: 'key_2', name: '越千峰按键', price: 99, originalPrice: 188, icon: 'key_2.png', previewImg: 'preview_key2.png' },
+            { id: 'key_3', name: '按键3', price: 99, originalPrice: 188, icon: 'key_3.png', previewImg: 'preview_key3.png' },
+            { id: 'key_4', name: '按键4', price: 99, originalPrice: 188, icon: 'key_4.png', previewImg: 'preview_key4.png' },
+            { id: 'key_5', name: '按键5', price: 99, originalPrice: 188, icon: 'key_5.png', previewImg: 'preview_key5.png' },
+            { id: 'key_6', name: '按键6', price: 99, originalPrice: 188, icon: 'key_6.png', previewImg: 'preview_key6.png' },
+        ];
+
+        const isBundleChecked = computed(() => checkedItemIds.value.includes(bundleData.id));
+
+        const currentDisplayPreviewImg = computed(() => {
+            if (currentPreviewKeyId.value) {
+                const key = keysData.find(k => k.id === currentPreviewKeyId.value);
+                return key ? key.previewImg : '';
+            }
+            if (currentPreviewId.value === bundleData.id) return bundleData.previewImg;
+            const skin = skinsData.find(s => s.id === currentPreviewId.value);
+            return skin ? skin.previewImg : '';
+        });
+
+        const currentDisplayKeys = computed(() => {
+            if (currentPreviewId.value === bundleData.id) return keysData;
+            const skin = skinsData.find(s => s.id === currentPreviewId.value);
+            return keysData.filter(k => k.id === skin.keyId);
+        });
+
+        const isCurrentKeysChecked = computed(() => {
+            const displayIds = currentDisplayKeys.value.map(k => k.id);
+            if (displayIds.length === 0) return false;
+            return displayIds.every(id => checkedKeyIds.value.includes(id));
+        });
+
+        const hasSkinChecked = computed(() => {
+            return checkedItemIds.value.some(id => id.startsWith('skin_'));
+        });
+
+        const getSkinDisplayPrice = (skinId) => {
+            const skin = skinsData.find(s => s.id === skinId);
+            if (!useLuckyCard.value) return skin.price;
+            
+            const firstCheckedSkinId = checkedItemIds.value.find(id => id.startsWith('skin_'));
+            // 需求3：只有当该皮肤是“第一个被勾选”的皮肤时，才显示优惠价。仅仅选中(黄框)不改变价格。
+            if (firstCheckedSkinId === skinId) {
+                return skin.price - 840;
+            }
+            return skin.price;
+        };
+
+        const finalTotalPrice = computed(() => {
+            let total = 0;
+            if (isBundleChecked.value) {
+                // 需求1：礼包基础价(7740) + 勾选的按键数量 * 99
+                total = bundleData.price + (checkedKeyIds.value.length * 99);
+            } else {
+                let skinCount = 0;
+                checkedItemIds.value.forEach(id => {
+                    if (id.startsWith('skin_')) {
+                        total += skinsData.find(s => s.id === id).price;
+                        skinCount++;
+                    }
+                });
+                if (useLuckyCard.value && skinCount > 0) total -= 840;
+                checkedKeyIds.value.forEach(id => {
+                    total += keysData.find(k => k.id === id).price;
+                });
+            }
+            return total;
+        });
+
+        const finalOriginalPrice = computed(() => {
+            let total = 0;
+            if (isBundleChecked.value) {
+                // 需求1：礼包原价(10728) + 勾选的按键数量 * 188
+                total = bundleData.originalPrice + (checkedKeyIds.value.length * 188);
+            } else {
+                checkedItemIds.value.forEach(id => {
+                    if (id.startsWith('skin_')) total += skinsData.find(s => s.id === id).originalPrice;
+                });
+                checkedKeyIds.value.forEach(id => {
+                    total += keysData.find(k => k.id === id).originalPrice;
+                });
+            }
+            return total;
+        });
+
+        const finalCheckedItemsData = computed(() => {
+            let items = [];
+            if (isBundleChecked.value) {
+                items.push(bundleData);
+            } else {
+                checkedItemIds.value.forEach(id => {
+                    if (id.startsWith('skin_')) items.push(skinsData.find(s => s.id === id));
+                });
+            }
+            checkedKeyIds.value.forEach(id => items.push(keysData.find(k => k.id === id)));
+            return items;
+        });
+
+        const toggleCheck = (id) => {
+            // 需求2：点击勾选框时，自动选中该商品（出现黄框并切换预览图）
+            selectPreview(id);
+
+            const isBundle = id === bundleData.id;
+            const index = checkedItemIds.value.indexOf(id);
+
+            if (index > -1) {
+                checkedItemIds.value.splice(index, 1);
+                if (isBundle) checkedKeyIds.value = [];
+            } else {
+                if (isBundle) {
+                    checkedItemIds.value = [bundleData.id];
+                    checkedKeyIds.value = keysData.map(k => k.id);
+                } else {
+                    if (isBundleChecked.value) {
+                        checkedItemIds.value = [];
+                        checkedKeyIds.value = [];
+                    }
+                    checkedItemIds.value.push(id);
+                }
+            }
+        };
+
+        const toggleCurrentKeys = () => {
+            const displayIds = currentDisplayKeys.value.map(k => k.id);
+            if (isCurrentKeysChecked.value) {
+                checkedKeyIds.value = checkedKeyIds.value.filter(id => !displayIds.includes(id));
+            } else {
+                displayIds.forEach(id => {
+                    if (!checkedKeyIds.value.includes(id)) checkedKeyIds.value.push(id);
+                });
+            }
+        };
+
+        const selectPreview = (id) => { 
+            currentPreviewId.value = id; 
+            currentPreviewKeyId.value = null; 
+        };
+
+        const selectKeyPreview = (keyId) => {
+            currentPreviewKeyId.value = keyId;
+        };
+        
+        const openConfirmModal = () => {
+            if (checkedItemIds.value.length === 0 && checkedKeyIds.value.length === 0) {
+                alert('请至少勾选一件商品！');
+                return;
+            }
+            showConfirmModal.value = true;
+        };
+
+        const executePurchase = () => {
+            alert(`购买成功！共消耗 ${finalTotalPrice.value} 点券`);
+            showConfirmModal.value = false;
+            checkedItemIds.value = ['skin_1'];
+            checkedKeyIds.value = [];
+            currentPreviewId.value = 'skin_1';
+            currentPreviewKeyId.value = null;
+        };
+
+        return {
+            showPurchaseModal, showConfirmModal,
+            currentPreviewId, currentPreviewKeyId, checkedItemIds, checkedKeyIds, 
+            bundleData, skinsData, keysData, isBundleChecked,
+            currentDisplayPreviewImg, currentDisplayKeys, isCurrentKeysChecked, hasSkinChecked,
+            getSkinDisplayPrice, finalTotalPrice, finalOriginalPrice, finalCheckedItemsData,
+            selectPreview, selectKeyPreview, toggleCheck, toggleCurrentKeys, openConfirmModal, executePurchase
+        };
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
