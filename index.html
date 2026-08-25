@@ -2,55 +2,70 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>王者荣耀春节皮肤购买 - 逻辑完善版</title>
+    <title>王者荣耀春节皮肤购买 - 完整流程版</title>
     <script src="https://cdn.staticfile.net/vue/3.3.4/vue.global.min.js"></script>
     <style>
         /* =========================================================
            🎯 坐标与间距配置区 (直接修改这里的数字即可)
            ========================================================= */
         :root {
-            /* --- 1. 主界面：大模块位置 --- */
-            --preview-top: 90px;       /* 预览图距离顶部 */
-            --preview-left: 205px;      /* 预览图距离左侧 */
+                    /* --- 1. 主界面：大模块位置 --- */
+            --preview-top: 70px;       /* 预览图距离顶部 */
+            --preview-left: 200px;      /* 预览图距离左侧 */
 
-            --keys-top: 140px;        /* 左上角按键区距离顶部 */
+            --keys-top: 120px;        /* 左上角按键区距离顶部 */
             --keys-left: 230px;       /* 左上角按键区距离左侧 */
+            
+            /* 🌟 新增：左侧按键全选勾选框的坐标微调 */
+            --keys-checkbox-top: 0px; /* 按键全选框向下偏移量 */
+            --keys-checkbox-left: -10px;/* 按键全选框向右偏移量 */
+
+            --key-price-top: 70px;    /* 按键价格距离按键区顶部 */
+            --key-price-left: 40px;    /* 按键价格距离按键区左侧 */
 
             --list-offset-top: 90px;  /* 右侧列表整体向下偏移 */
             --list-offset-right: 95px;/* 右侧列表整体向左偏移 (距离右侧的距离) */
 
-            --checkout-bottom: 100px;  /* 购买按钮距离底部 */
+            --checkout-bottom: 110px;  /* 购买按钮距离底部 */
             --checkout-right: 20px;    /* 购买按钮距离右侧 */
+            
+            --purchase-close-top: 20px;   /* 购买弹窗关闭按钮距离顶部 */
+            --purchase-close-right: 20px; /* 购买弹窗关闭按钮距离右侧 */
 
-            /* --- 2. 主界面：列表内部间距 --- */
+          /* --- 2. 主界面：列表内部间距 --- */
             --bundle-gap: 30px;       /* 第一行(礼包)与第二行的间距 */
             --skin-row-gap: 40px;     /* 皮肤列表的行间距 */
-            --skin-col-gap: 15px;     /* 皮肤列表的列间距(左右) */
+            --skin-col-gap: 40px;     /* 皮肤列表的列间距(左右) */
+
 
             /* --- 3. 主界面：商品元素细节坐标 --- */
             --item-frame-top: -5px;    /* 选中框距离商品图顶部 */
             --item-frame-left: -5px;   /* 选中框距离商品图左侧 */
 
-            --item-checkbox-top: -5px; /* 勾选框距离商品图顶部 (可随意移到外部，不会被裁切) */
-            --item-checkbox-left: -5px;/* 勾选框距离商品图左侧 */
+            --item-checkbox-top: -10px; /* 勾选框距离商品图顶部 (可随意移到外部，不会被裁切) */
+            --item-checkbox-left: -10px;/* 勾选框距离商品图左侧 */
 
             --item-price-bottom: -20px; /* 价格文字距离商品图底部 */
             --item-price-left: 0px;   /* 价格文字距离商品图左侧 (默认0，靠居中对齐) */
 
-            --checkout-text-top: 20px; /* 购买按钮文字整体向下偏移量 */
-            --checkout-text-left: 60px;/* 购买按钮文字整体向右偏移量 */
+            --checkout-text-top: 0px; /* 购买按钮文字整体向下偏移量 */
+            --checkout-text-left: 0px;/* 购买按钮文字整体向右偏移量 */
 
             /* --- 4. 二次确认弹窗：坐标配置 --- */
             --confirm-price-top: 120px;    /* 总价格距离弹窗顶部 */
             --confirm-price-left: 0px;     /* 总价格距离弹窗左侧 (默认0，靠居中对齐) */
 
             --confirm-items-top: 200px;    /* 商品列表距离弹窗顶部 */
-            --confirm-items-left: 0px;     /* 商品列表距离弹窗左侧 (默认0，靠居中对齐) */
+            
+            /* 弹窗列表遮罩与居中配置 (520px 刚好露出6个半) */
+            --confirm-list-width: 520px;   /* 列表可视区域宽度，超出部分会被遮挡并可滑动 */
+            --confirm-list-left: 50%;      /* 列表距离左侧 (默认50%居中) */
+            --confirm-list-transform: translateX(-50%); /* 配合50%实现绝对居中 */
+            
             --confirm-item-gap: 15px;      /* 确认弹窗中，商品图标之间的间距 */
 
             --confirm-btn-bottom: 30px;    /* 确认购买按钮距离弹窗底部 */
             --confirm-btn-left: 0px;       /* 确认购买按钮距离弹窗左侧 (默认0，靠居中对齐) */
-
         }
         /* ========================================================= */
 
@@ -70,6 +85,12 @@
 
         .original-price { font-size: 14px; color: rgba(255,255,255,0.6); text-decoration: line-through; margin-left: 8px; }
 
+        .home-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            cursor: pointer; z-index: 10;
+        }
+        .home-screen img { width: 100%; height: 100%; object-fit: cover; }
+
         .modal-mask {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); 
@@ -86,17 +107,30 @@
         }
         .modal-content-layer > * { pointer-events: auto; }
 
+        .btn-close-purchase {
+            position: absolute; top: var(--purchase-close-top); right: var(--purchase-close-right);
+            cursor: pointer; z-index: 50;
+        }
+
         .preview-section { width: 1020px; position: relative; height: 100%; }
         
         .recommend-keys { position: absolute; top: var(--keys-top); left: var(--keys-left); z-index: 10; }
         .key-list { display: flex; gap: 10px; align-items: center; }
+        
+        .keys-all-checkbox {
+            position: relative;
+            top: var(--keys-checkbox-top);
+            left: var(--keys-checkbox-left);
+            cursor: pointer;
+            z-index: 20; 
+        }
+
         .key-item { position: relative; display: inline-block; cursor: pointer; }
         .key-item .frame-selected {
             position: absolute; top: -2px; left: -2px; width: calc(100% + 4px); height: calc(100% + 4px);
             z-index: 2; pointer-events: none;
         }
         
-        /* 需求4：左上角按键价格样式 */
         .key-price-text {
             position: absolute; top: var(--key-price-top); left: var(--key-price-left);
             display: flex; align-items: center; color: #fff; font-size: 14px; width: max-content;
@@ -144,6 +178,15 @@
         }
         .btn-checkout .content img { margin-right: 8px; }
 
+        @keyframes btn-flash {
+            0% { filter: brightness(1) drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
+            50% { filter: brightness(1.8) drop-shadow(0 0 20px rgba(100, 200, 255, 0.8)); }
+            100% { filter: brightness(1) drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
+        }
+        .anim-refresh {
+            animation: btn-flash 0.4s ease-out;
+        }
+
         .confirm-modal { position: relative; display: inline-block; }
         .confirm-content-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -158,13 +201,34 @@
         }
         .confirm-price img { margin-right: 10px; }
         
-        .confirm-items-wrapper { 
-            position: absolute; top: var(--confirm-items-top); left: var(--confirm-items-left);
-            width: 100%; display: flex; justify-content: center;
+        .confirm-items-viewport { 
+            position: absolute; 
+            top: var(--confirm-items-top); 
+            left: var(--confirm-list-left);
+            transform: var(--confirm-list-transform);
+            width: var(--confirm-list-width); 
+            overflow-x: auto;
+            scrollbar-width: none; 
+            -webkit-overflow-scrolling: touch; 
+            cursor: grab; 
         }
-        .confirm-items-list { display: flex; gap: var(--confirm-item-gap); width: max-content; }
+        .confirm-items-viewport:active { cursor: grabbing; }
+        .confirm-items-viewport::-webkit-scrollbar { display: none; } 
+
+        .confirm-items-list { 
+            display: flex; 
+            gap: var(--confirm-item-gap); 
+            width: max-content; 
+            padding: 0 5px; 
+        }
+        .confirm-items-list.is-center {
+            min-width: 100%;
+            justify-content: center;
+        }
+
         .confirm-item { text-align: center; display: flex; flex-direction: column; align-items: center; }
         .confirm-item p { color: #fff; font-size: 12px; margin-top: 8px; }
+        .confirm-item img { -webkit-user-drag: none; pointer-events: none; }
 
         .confirm-btn-group { 
             position: absolute; bottom: var(--confirm-btn-bottom); left: var(--confirm-btn-left);
@@ -176,6 +240,10 @@
 <body>
 
 <div id="app">
+    <div class="home-screen" v-if="showHome" @click="openPurchaseModal">
+        <img src="bg_home.jpg">
+    </div>
+
     <div class="modal-mask" v-if="showPurchaseModal">
         <div class="purchase-modal">
             
@@ -183,10 +251,12 @@
             <img :src="currentDisplayPreviewImg" class="preview-img-over">
             
             <div class="modal-content-layer">
+                <img src="btn_close.png" class="btn-close-purchase" @click="closePurchaseModal">
+
                 <div class="preview-section">
                     <div class="recommend-keys">
                         <div class="key-list">
-                            <div class="img-checkbox" @click="toggleCurrentKeys" style="position: relative; top: 0; left: 0; cursor: pointer; z-index: 5;">
+                            <div class="keys-all-checkbox" @click="toggleCurrentKeys">
                                 <img :src="isCurrentKeysChecked ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
                             </div>
                             <div class="key-item" v-for="key in currentDisplayKeys" :key="key.id" @click="selectKeyPreview(key.id)" v-show="currentPreviewId !== bundleData.id">
@@ -194,7 +264,6 @@
                                 <img :src="key.icon">
                             </div>
                         </div>
-                        <!-- 需求4：单皮肤左上角按键下方显示商品价格 -->
                         <div class="key-price-text" v-show="currentPreviewId !== bundleData.id && currentDisplayKeys.length > 0">
                             <img src="icon_gem.png">
                             99 <span class="original-price">188</span>
@@ -210,10 +279,6 @@
                                 <img :src="isBundleChecked ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
                             </div>
                             <img :src="bundleData.icon">
-                            <div class="price-text">
-                                <img src="icon_gem.png">
-                                {{ bundleData.price }} <span class="original-price">{{ bundleData.originalPrice }}</span>
-                            </div>
                         </div>
 
                         <div class="skins-grid">
@@ -232,7 +297,7 @@
                     </div>
 
                     <div class="checkout-section">
-                        <div class="btn-checkout" @click="openConfirmModal">
+                        <div class="btn-checkout" :class="{ 'anim-refresh': isBtnRefreshing }" @click="openConfirmModal">
                             <img src="btn_buy_blue.png">
                             <div class="content">
                                 <img src="icon_gem.png">
@@ -257,8 +322,13 @@
                     {{ finalTotalPrice }}
                 </div>
                 
-                <div class="confirm-items-wrapper">
-                    <div class="confirm-items-list">
+                <div class="confirm-items-viewport" 
+                     ref="viewportRef"
+                     @mousedown="startDrag"
+                     @mouseleave="stopDrag"
+                     @mouseup="stopDrag"
+                     @mousemove="onDrag">
+                    <div class="confirm-items-list" :class="{ 'is-center': finalCheckedItemsData.length <= 6 }">
                         <div class="confirm-item" v-for="item in finalCheckedItemsData" :key="item.id">
                             <img :src="item.icon">
                             <p>{{ item.name }}</p>
@@ -275,11 +345,12 @@
 </div>
 
 <script>
-const { createApp, ref, computed } = Vue;
+const { createApp, ref, computed, watch } = Vue;
 
 createApp({
     setup() {
-        const showPurchaseModal = ref(true);
+        const showHome = ref(true);
+        const showPurchaseModal = ref(false);
         const showConfirmModal = ref(false);
         
         const currentPreviewId = ref('skin_1');
@@ -288,9 +359,16 @@ createApp({
         const checkedItemIds = ref(['skin_1']); 
         const checkedKeyIds = ref([]);          
         const useLuckyCard = ref(true); 
+        
+        const isBtnRefreshing = ref(false);
 
-        // 需求1：全套礼包基础价格改为 7740，原价 10728
-        const bundleData = { id: 'bundle_1', name: '全套皮肤+按键礼包', price: 7740, originalPrice: 10728, icon: 'item_bundle.png', previewImg: 'preview_bundle.png' };
+        const bundleData = { 
+            id: 'bundle_1', name: '全套皮肤+按键礼包', 
+            price: 7740, originalPrice: 10728, 
+            icon: 'item_bundle.png', 
+            previewImg: 'preview_bundle.png',
+            previewImgNoKey: 'preview_bundle-2.png' 
+        };
         
         const skinsData = [
             { id: 'skin_1', name: '神骥·鸣幻洲', price: 1430, originalPrice: 1788, icon: 'item_skin1.png', previewImg: 'preview_skin1.png', keyId: 'key_1' },
@@ -310,14 +388,24 @@ createApp({
             { id: 'key_6', name: '按键6', price: 99, originalPrice: 188, icon: 'key_6.png', previewImg: 'preview_key6.png' },
         ];
 
-        const isBundleChecked = computed(() => checkedItemIds.value.includes(bundleData.id));
+        const isBundleChecked = computed(() => {
+            return skinsData.every(skin => checkedItemIds.value.includes(skin.id));
+        });
 
         const currentDisplayPreviewImg = computed(() => {
             if (currentPreviewKeyId.value) {
                 const key = keysData.find(k => k.id === currentPreviewKeyId.value);
                 return key ? key.previewImg : '';
             }
-            if (currentPreviewId.value === bundleData.id) return bundleData.previewImg;
+            if (currentPreviewId.value === bundleData.id) {
+                // 🌟 修复：如果仅仅是点击预览礼包（未勾选全套），默认展示完整礼包图
+                // 只有在“已勾选全套礼包”且“取消了按键”的情况下，才展示无按键版
+                if (isBundleChecked.value) {
+                    const allKeysChecked = keysData.every(k => checkedKeyIds.value.includes(k.id));
+                    return allKeysChecked ? bundleData.previewImg : bundleData.previewImgNoKey;
+                }
+                return bundleData.previewImg;
+            }
             const skin = skinsData.find(s => s.id === currentPreviewId.value);
             return skin ? skin.previewImg : '';
         });
@@ -343,7 +431,6 @@ createApp({
             if (!useLuckyCard.value) return skin.price;
             
             const firstCheckedSkinId = checkedItemIds.value.find(id => id.startsWith('skin_'));
-            // 需求3：只有当该皮肤是“第一个被勾选”的皮肤时，才显示优惠价。仅仅选中(黄框)不改变价格。
             if (firstCheckedSkinId === skinId) {
                 return skin.price - 840;
             }
@@ -353,7 +440,6 @@ createApp({
         const finalTotalPrice = computed(() => {
             let total = 0;
             if (isBundleChecked.value) {
-                // 需求1：礼包基础价(7740) + 勾选的按键数量 * 99
                 total = bundleData.price + (checkedKeyIds.value.length * 99);
             } else {
                 let skinCount = 0;
@@ -374,7 +460,6 @@ createApp({
         const finalOriginalPrice = computed(() => {
             let total = 0;
             if (isBundleChecked.value) {
-                // 需求1：礼包原价(10728) + 勾选的按键数量 * 188
                 total = bundleData.originalPrice + (checkedKeyIds.value.length * 188);
             } else {
                 checkedItemIds.value.forEach(id => {
@@ -387,40 +472,48 @@ createApp({
             return total;
         });
 
+        watch([checkedItemIds, checkedKeyIds], () => {
+            isBtnRefreshing.value = false;
+            setTimeout(() => {
+                isBtnRefreshing.value = true;
+                setTimeout(() => {
+                    isBtnRefreshing.value = false;
+                }, 400); 
+            }, 10);
+        }, { deep: true });
+
         const finalCheckedItemsData = computed(() => {
             let items = [];
-            if (isBundleChecked.value) {
-                items.push(bundleData);
-            } else {
-                checkedItemIds.value.forEach(id => {
-                    if (id.startsWith('skin_')) items.push(skinsData.find(s => s.id === id));
-                });
-            }
-            checkedKeyIds.value.forEach(id => items.push(keysData.find(k => k.id === id)));
+            checkedItemIds.value.forEach(id => {
+                const skin = skinsData.find(s => s.id === id);
+                if (skin) items.push(skin);
+            });
+            checkedKeyIds.value.forEach(id => {
+                const key = keysData.find(k => k.id === id);
+                if (key) items.push(key);
+            });
             return items;
         });
 
         const toggleCheck = (id) => {
-            // 需求2：点击勾选框时，自动选中该商品（出现黄框并切换预览图）
             selectPreview(id);
 
-            const isBundle = id === bundleData.id;
-            const index = checkedItemIds.value.indexOf(id);
+            if (id === bundleData.id) {
+                if (isBundleChecked.value) {
+                    checkedItemIds.value = [];
+                    checkedKeyIds.value = [];
+                } else {
+                    checkedItemIds.value = skinsData.map(s => s.id);
+                    checkedKeyIds.value = keysData.map(k => k.id);
+                }
+                return;
+            }
 
+            const index = checkedItemIds.value.indexOf(id);
             if (index > -1) {
                 checkedItemIds.value.splice(index, 1);
-                if (isBundle) checkedKeyIds.value = [];
             } else {
-                if (isBundle) {
-                    checkedItemIds.value = [bundleData.id];
-                    checkedKeyIds.value = keysData.map(k => k.id);
-                } else {
-                    if (isBundleChecked.value) {
-                        checkedItemIds.value = [];
-                        checkedKeyIds.value = [];
-                    }
-                    checkedItemIds.value.push(id);
-                }
+                checkedItemIds.value.push(id);
             }
         };
 
@@ -444,6 +537,16 @@ createApp({
             currentPreviewKeyId.value = keyId;
         };
         
+        const openPurchaseModal = () => {
+            showHome.value = false;
+            showPurchaseModal.value = true;
+        };
+
+        const closePurchaseModal = () => {
+            showPurchaseModal.value = false;
+            showHome.value = true;
+        };
+
         const openConfirmModal = () => {
             if (checkedItemIds.value.length === 0 && checkedKeyIds.value.length === 0) {
                 alert('请至少勾选一件商品！');
@@ -461,13 +564,37 @@ createApp({
             currentPreviewKeyId.value = null;
         };
 
+        const viewportRef = ref(null);
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+
+        const startDrag = (e) => {
+            isDragging = true;
+            startX = e.pageX - viewportRef.value.offsetLeft;
+            scrollLeft = viewportRef.value.scrollLeft;
+        };
+        const stopDrag = () => {
+            isDragging = false;
+        };
+        const onDrag = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - viewportRef.value.offsetLeft;
+            const walk = (x - startX) * 1.5; 
+            viewportRef.value.scrollLeft = scrollLeft - walk;
+        };
+
         return {
-            showPurchaseModal, showConfirmModal,
+            showHome, showPurchaseModal, showConfirmModal, 
+            openPurchaseModal, closePurchaseModal,         
             currentPreviewId, currentPreviewKeyId, checkedItemIds, checkedKeyIds, 
             bundleData, skinsData, keysData, isBundleChecked,
             currentDisplayPreviewImg, currentDisplayKeys, isCurrentKeysChecked, hasSkinChecked,
             getSkinDisplayPrice, finalTotalPrice, finalOriginalPrice, finalCheckedItemsData,
-            selectPreview, selectKeyPreview, toggleCheck, toggleCurrentKeys, openConfirmModal, executePurchase
+            selectPreview, selectKeyPreview, toggleCheck, toggleCurrentKeys, openConfirmModal, executePurchase,
+            isBtnRefreshing,
+            viewportRef, startDrag, stopDrag, onDrag 
         };
     }
 }).mount('#app');
