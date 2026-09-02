@@ -9,63 +9,84 @@
            🎯 坐标与间距配置区 (直接修改这里的数字即可)
            ========================================================= */
         :root {
-                    /* --- 1. 主界面：大模块位置 --- */
-            --preview-top: 70px;       /* 预览图距离顶部 */
-            --preview-left: 200px;      /* 预览图距离左侧 */
+            /* ---------------------------------------------------
+               【1. 左侧大预览图】
+               --------------------------------------------------- */
+            --preview-top: 70px;       /* 预览图距离屏幕顶部的距离 */
+            --preview-left: 200px;      /* 预览图距离屏幕左侧的距离 */
 
-            --keys-top: 120px;        /* 左上角按键区距离顶部 */
-            --keys-left: 230px;       /* 左上角按键区距离左侧 */
+            /* ---------------------------------------------------
+               【2. 左侧按键区域 (包含按键图标、勾选框、价格)】
+               --------------------------------------------------- */
+            --keys-top: 120px;        /* 整个按键区域距离屏幕顶部的距离 */
+            --keys-left: 230px;       /* 整个按键区域距离屏幕左侧的距离 */
             
-            /* 🌟 新增：左侧按键全选勾选框的坐标微调 */
-            --keys-checkbox-top: 0px; /* 按键全选框向下偏移量 */
-            --keys-checkbox-left: -10px;/* 按键全选框向右偏移量 */
+            --keys-checkbox-top: 0px; /* 左侧按键【统一勾选框】的上下微调 (正数向下，负数向上) */
+            --keys-checkbox-left: -10px;/* 左侧按键【统一勾选框】的左右微调 (正数向右，负数向左) */
 
-            --key-price-top: 70px;    /* 按键价格距离按键区顶部 */
-            --key-price-left: 40px;    /* 按键价格距离按键区左侧 */
+            --key-price-top: 70px;    /* 左侧按键下方的【99点券价格】距离按键图标顶部的距离 */
+            --key-price-left: 40px;    /* 左侧按键下方的【99点券价格】的左右微调 */
 
-            --list-offset-top: 90px;  /* 右侧列表整体向下偏移 */
-            --list-offset-right: 95px;/* 右侧列表整体向左偏移 (距离右侧的距离) */
+            /* ---------------------------------------------------
+               【3. 右侧商品列表区域 (包含礼包和6个皮肤)】
+               --------------------------------------------------- */
+            --list-offset-top: 90px;  /* 右侧整个列表距离屏幕顶部的距离 */
+            --list-offset-right: 95px;/* 右侧整个列表距离屏幕右侧的距离 */
 
-            --checkout-bottom: 110px;  /* 购买按钮距离底部 */
-            --checkout-right: 20px;    /* 购买按钮距离右侧 */
+            --bundle-gap: 30px;       /* 第一行【全套礼包】与下方【皮肤列表】之间的上下间距 */
+            --skin-row-gap: 50px;     /* 下方6个皮肤中，第一排和第二排的上下间距 */
+            --skin-col-gap: 12px;     /* 下方6个皮肤中，左右相邻皮肤的间距 */
+
+            /* ---------------------------------------------------
+               【4. 右侧单个商品内部细节 (适用于礼包和皮肤)】
+               --------------------------------------------------- */
+            --item-frame-top: -5px;    /* 选中商品时，外发光选中框的上下微调 */
+            --item-frame-left: -5px;   /* 选中商品时，外发光选中框的左右微调 */
+
+            --item-checkbox-top: -10px; /* 商品左上角【勾选框】距离商品图顶部的距离 */
+            --item-checkbox-left: -10px;/* 商品左上角【勾选框】距离商品图左侧的距离 */
+
+            --item-price-bottom: -20px; /* 商品下方【价格文字】距离商品图底部的距离 */
+            --item-price-left: -10px;   /* 商品下方【价格文字】的左右微调 (默认0，居中对齐) */
+
+            --small-key-bottom: -3px;  /* 勾选按键后，皮肤右下角出现的【按键小icon】距离底部的距离 */
+            --small-key-right:18px;   /* 勾选按键后，皮肤右下角出现的【按键小icon】距离右侧的距离 */
+
+            --noskin-tip-top: -20px;  /* 未勾选皮肤却勾选按键时，弹出的【气泡提示】上下微调 */
+            --noskin-tip-left: -150px; /* 未勾选皮肤却勾选按键时，弹出的【气泡提示】左右微调 */
+
+            /* ---------------------------------------------------
+               【5. 购买按钮与全局提示】
+               --------------------------------------------------- */
+            --checkout-bottom: 110px;  /* 右下角【购买按钮】距离屏幕底部的距离 */
+            --checkout-right:30px;    /* 右下角【购买按钮】距离屏幕右侧的距离 */
             
-            --purchase-close-top: 20px;   /* 购买弹窗关闭按钮距离顶部 */
-            --purchase-close-right: 20px; /* 购买弹窗关闭按钮距离右侧 */
+            --checkout-text-top: 0px; /* 【购买按钮】内部文字的上下微调 */
+            --checkout-text-left: 0px;/* 【购买按钮】内部文字的左右微调 */
 
-          /* --- 2. 主界面：列表内部间距 --- */
-            --bundle-gap: 30px;       /* 第一行(礼包)与第二行的间距 */
-            --skin-row-gap: 40px;     /* 皮肤列表的行间距 */
-            --skin-col-gap: 40px;     /* 皮肤列表的列间距(左右) */
+            --purchase-close-top: 20px;   /* 右上角【关闭X按钮】距离屏幕顶部的距离 */
+            --purchase-close-right: 20px; /* 右上角【关闭X按钮】距离屏幕右侧的距离 */
 
+            --cancel-tip-top: 300px;      /* 取消皮肤联动取消按键时，屏幕中央【提示文字】的上下位置 */
+            --cancel-tip-left: 50%;       /* 屏幕中央【提示文字】的左右位置 (默认50%居中) */
+            --cancel-tip-transform: translateX(-50%); /* 配合50%实现绝对居中，无需修改 */
 
-            /* --- 3. 主界面：商品元素细节坐标 --- */
-            --item-frame-top: -5px;    /* 选中框距离商品图顶部 */
-            --item-frame-left: -5px;   /* 选中框距离商品图左侧 */
+            /* ---------------------------------------------------
+               【6. 二次确认弹窗】
+               --------------------------------------------------- */
+            --confirm-price-top: 200px;    /* 弹窗内【总价格】距离弹窗顶部的距离 */
+            --confirm-price-left: 0px;     /* 弹窗内【总价格】的左右微调 (默认0，居中) */
 
-            --item-checkbox-top: -10px; /* 勾选框距离商品图顶部 (可随意移到外部，不会被裁切) */
-            --item-checkbox-left: -10px;/* 勾选框距离商品图左侧 */
-
-            --item-price-bottom: -20px; /* 价格文字距离商品图底部 */
-            --item-price-left: 0px;   /* 价格文字距离商品图左侧 (默认0，靠居中对齐) */
-
-            --checkout-text-top: 0px; /* 购买按钮文字整体向下偏移量 */
-            --checkout-text-left: 0px;/* 购买按钮文字整体向右偏移量 */
-
-            /* --- 4. 二次确认弹窗：坐标配置 --- */
-            --confirm-price-top: 120px;    /* 总价格距离弹窗顶部 */
-            --confirm-price-left: 0px;     /* 总价格距离弹窗左侧 (默认0，靠居中对齐) */
-
-            --confirm-items-top: 200px;    /* 商品列表距离弹窗顶部 */
+            --confirm-items-top: 280px;    /* 弹窗内【商品列表】距离弹窗顶部的距离 */
             
-            /* 弹窗列表遮罩与居中配置 (520px 刚好露出6个半) */
-            --confirm-list-width: 520px;   /* 列表可视区域宽度，超出部分会被遮挡并可滑动 */
-            --confirm-list-left: 50%;      /* 列表距离左侧 (默认50%居中) */
-            --confirm-list-transform: translateX(-50%); /* 配合50%实现绝对居中 */
+            --confirm-list-left: 50%;      /* 弹窗内【商品列表】的左右位置 (默认50%居中) */
+            --confirm-list-transform: translateX(-50%); 
             
-            --confirm-item-gap: 15px;      /* 确认弹窗中，商品图标之间的间距 */
+            --confirm-item-gap-x: 15px;    /* 弹窗内商品列表的【左右间距】 */
+            --confirm-item-gap-y: 20px;    /* 弹窗内商品列表的【上下间距】 */
 
-            --confirm-btn-bottom: 30px;    /* 确认购买按钮距离弹窗底部 */
-            --confirm-btn-left: 0px;       /* 确认购买按钮距离弹窗左侧 (默认0，靠居中对齐) */
+            --confirm-btn-bottom: 150px;    /* 弹窗底部【确认购买按钮】距离弹窗底部的距离 */
+            --confirm-btn-left: 0px;       /* 弹窗底部【确认购买按钮】的左右微调 (默认0，居中) */
         }
         /* ========================================================= */
 
@@ -112,17 +133,19 @@
             cursor: pointer; z-index: 50;
         }
 
+        .cancel-tip {
+            position: absolute; top: var(--cancel-tip-top); left: var(--cancel-tip-left);
+            transform: var(--cancel-tip-transform); z-index: 200; pointer-events: none;
+        }
+
         .preview-section { width: 1020px; position: relative; height: 100%; }
         
         .recommend-keys { position: absolute; top: var(--keys-top); left: var(--keys-left); z-index: 10; }
         .key-list { display: flex; gap: 10px; align-items: center; }
         
         .keys-all-checkbox {
-            position: relative;
-            top: var(--keys-checkbox-top);
-            left: var(--keys-checkbox-left);
-            cursor: pointer;
-            z-index: 20; 
+            position: relative; top: var(--keys-checkbox-top); left: var(--keys-checkbox-left);
+            cursor: pointer; z-index: 20; 
         }
 
         .key-item { position: relative; display: inline-block; cursor: pointer; }
@@ -169,6 +192,16 @@
             cursor: pointer; z-index: 5; 
         }
 
+        .small-key-icon {
+            position: absolute; bottom: var(--small-key-bottom); right: var(--small-key-right);
+            z-index: 4; pointer-events: none;
+        }
+
+        .noskin-tip {
+            position: absolute; top: var(--noskin-tip-top); left: var(--noskin-tip-left);
+            z-index: 10; pointer-events: none;
+        }
+
         .checkout-section { position: absolute; bottom: var(--checkout-bottom); right: var(--checkout-right); }
         .btn-checkout { position: relative; cursor: pointer; display: inline-block; }
         .btn-checkout .content {
@@ -183,9 +216,7 @@
             50% { filter: brightness(1.8) drop-shadow(0 0 20px rgba(100, 200, 255, 0.8)); }
             100% { filter: brightness(1) drop-shadow(0 0 0px rgba(255, 255, 255, 0)); }
         }
-        .anim-refresh {
-            animation: btn-flash 0.4s ease-out;
-        }
+        .anim-refresh { animation: btn-flash 0.4s ease-out; }
 
         .confirm-modal { position: relative; display: inline-block; }
         .confirm-content-layer {
@@ -206,23 +237,14 @@
             top: var(--confirm-items-top); 
             left: var(--confirm-list-left);
             transform: var(--confirm-list-transform);
-            width: var(--confirm-list-width); 
-            overflow-x: auto;
-            scrollbar-width: none; 
-            -webkit-overflow-scrolling: touch; 
-            cursor: grab; 
+            width: max-content; 
         }
-        .confirm-items-viewport:active { cursor: grabbing; }
-        .confirm-items-viewport::-webkit-scrollbar { display: none; } 
 
         .confirm-items-list { 
-            display: flex; 
-            gap: var(--confirm-item-gap); 
-            width: max-content; 
-            padding: 0 5px; 
-        }
-        .confirm-items-list.is-center {
-            min-width: 100%;
+            display: grid; 
+            grid-template-columns: repeat(6, 1fr); 
+            column-gap: var(--confirm-item-gap-x); 
+            row-gap: var(--confirm-item-gap-y);
             justify-content: center;
         }
 
@@ -240,6 +262,8 @@
 <body>
 
 <div id="app">
+    <img src="cancel_tips.png" class="cancel-tip" v-if="showCancelTip">
+
     <div class="home-screen" v-if="showHome" @click="openPurchaseModal">
         <img src="bg_home.jpg">
     </div>
@@ -256,6 +280,7 @@
                 <div class="preview-section">
                     <div class="recommend-keys">
                         <div class="key-list">
+                            <!-- 左侧统一的勾选框 -->
                             <div class="keys-all-checkbox" @click="toggleCurrentKeys">
                                 <img :src="isCurrentKeysChecked ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
                             </div>
@@ -284,13 +309,19 @@
                         <div class="skins-grid">
                             <div class="item-box" v-for="skin in skinsData" :key="skin.id" @click="selectPreview(skin.id)">
                                 <img src="frame_selected.png" class="frame-selected" v-if="currentPreviewId === skin.id && !currentPreviewKeyId">
+                                
+                                <img src="noskin_tips.png" class="noskin-tip" v-if="noSkinTipIds.includes(skin.id)">
+
                                 <div class="img-checkbox" @click.stop="toggleCheck(skin.id)">
                                     <img :src="checkedItemIds.includes(skin.id) ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
                                 </div>
                                 <img :src="skin.icon">
+                                
+                                <img :src="skin.smallKeyIcon" class="small-key-icon" v-if="checkedKeyIds.includes(skin.keyId)">
+
                                 <div class="price-text">
                                     <img src="icon_gem.png">
-                                    {{ getSkinDisplayPrice(skin.id) }} <span class="original-price">{{ skin.originalPrice }}</span>
+                                    {{ getSkinDisplayPrice(skin.id) }} <span class="original-price">{{ getSkinOriginalPrice(skin.id) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -322,13 +353,8 @@
                     {{ finalTotalPrice }}
                 </div>
                 
-                <div class="confirm-items-viewport" 
-                     ref="viewportRef"
-                     @mousedown="startDrag"
-                     @mouseleave="stopDrag"
-                     @mouseup="stopDrag"
-                     @mousemove="onDrag">
-                    <div class="confirm-items-list" :class="{ 'is-center': finalCheckedItemsData.length <= 6 }">
+                <div class="confirm-items-viewport">
+                    <div class="confirm-items-list">
                         <div class="confirm-item" v-for="item in finalCheckedItemsData" :key="item.id">
                             <img :src="item.icon">
                             <p>{{ item.name }}</p>
@@ -353,6 +379,10 @@ createApp({
         const showPurchaseModal = ref(false);
         const showConfirmModal = ref(false);
         
+        const showCancelTip = ref(false);
+        let cancelTipTimer = null;
+        const noSkinTipIds = ref([]); 
+
         const currentPreviewId = ref('skin_1');
         const currentPreviewKeyId = ref(null); 
 
@@ -365,18 +395,18 @@ createApp({
         const bundleData = { 
             id: 'bundle_1', name: '全套皮肤+按键礼包', 
             price: 7740, originalPrice: 10728, 
-            icon: 'item_bundle.png', 
+            icon: 'icon_bundle.png', // 🌟 已修改为 icon_bundle.png
             previewImg: 'preview_bundle.png',
             previewImgNoKey: 'preview_bundle-2.png' 
         };
         
         const skinsData = [
-            { id: 'skin_1', name: '神骥·鸣幻洲', price: 1430, originalPrice: 1788, icon: 'item_skin1.png', previewImg: 'preview_skin1.png', keyId: 'key_1' },
-            { id: 'skin_2', name: '神骥·越千峰', price: 1430, originalPrice: 1788, icon: 'item_skin2.png', previewImg: 'preview_skin2.png', keyId: 'key_2' },
-            { id: 'skin_3', name: '皮肤3', price: 1430, originalPrice: 1788, icon: 'item_skin3.png', previewImg: 'preview_skin3.png', keyId: 'key_3' },
-            { id: 'skin_4', name: '皮肤4', price: 1430, originalPrice: 1788, icon: 'item_skin4.png', previewImg: 'preview_skin4.png', keyId: 'key_4' },
-            { id: 'skin_5', name: '皮肤5', price: 1430, originalPrice: 1788, icon: 'item_skin5.png', previewImg: 'preview_skin5.png', keyId: 'key_5' },
-            { id: 'skin_6', name: '皮肤6', price: 1430, originalPrice: 1788, icon: 'item_skin6.png', previewImg: 'preview_skin6.png', keyId: 'key_6' },
+            { id: 'skin_1', name: '神骥·鸣幻洲', price: 1430, originalPrice: 1788, icon: 'item_skin1.png', previewImg: 'preview_skin1.png', keyId: 'key_1', smallKeyIcon: 'key_1s.png' },
+            { id: 'skin_2', name: '神骥·越千峰', price: 1430, originalPrice: 1788, icon: 'item_skin2.png', previewImg: 'preview_skin2.png', keyId: 'key_2', smallKeyIcon: 'key_2s.png' },
+            { id: 'skin_3', name: '皮肤3', price: 1430, originalPrice: 1788, icon: 'item_skin3.png', previewImg: 'preview_skin3.png', keyId: 'key_3', smallKeyIcon: 'key_3s.png' },
+            { id: 'skin_4', name: '皮肤4', price: 1430, originalPrice: 1788, icon: 'item_skin4.png', previewImg: 'preview_skin4.png', keyId: 'key_4', smallKeyIcon: 'key_4s.png' },
+            { id: 'skin_5', name: '皮肤5', price: 1430, originalPrice: 1788, icon: 'item_skin5.png', previewImg: 'preview_skin5.png', keyId: 'key_5', smallKeyIcon: 'key_5s.png' },
+            { id: 'skin_6', name: '皮肤6', price: 1430, originalPrice: 1788, icon: 'item_skin6.png', previewImg: 'preview_skin6.png', keyId: 'key_6', smallKeyIcon: 'key_6s.png' },
         ];
 
         const keysData = [
@@ -389,7 +419,9 @@ createApp({
         ];
 
         const isBundleChecked = computed(() => {
-            return skinsData.every(skin => checkedItemIds.value.includes(skin.id));
+            const allSkinsChecked = skinsData.every(skin => checkedItemIds.value.includes(skin.id));
+            const allKeysChecked = keysData.every(key => checkedKeyIds.value.includes(key.id));
+            return allSkinsChecked && allKeysChecked;
         });
 
         const currentDisplayPreviewImg = computed(() => {
@@ -398,10 +430,9 @@ createApp({
                 return key ? key.previewImg : '';
             }
             if (currentPreviewId.value === bundleData.id) {
-                // 🌟 修复：如果仅仅是点击预览礼包（未勾选全套），默认展示完整礼包图
-                // 只有在“已勾选全套礼包”且“取消了按键”的情况下，才展示无按键版
-                if (isBundleChecked.value) {
-                    const allKeysChecked = keysData.every(k => checkedKeyIds.value.includes(k.id));
+                const allSkinsChecked = skinsData.every(skin => checkedItemIds.value.includes(skin.id));
+                const allKeysChecked = keysData.every(k => checkedKeyIds.value.includes(k.id));
+                if (allSkinsChecked) {
                     return allKeysChecked ? bundleData.previewImg : bundleData.previewImgNoKey;
                 }
                 return bundleData.previewImg;
@@ -422,19 +453,35 @@ createApp({
             return displayIds.every(id => checkedKeyIds.value.includes(id));
         });
 
-        const hasSkinChecked = computed(() => {
-            return checkedItemIds.value.some(id => id.startsWith('skin_'));
-        });
+        const triggerCancelTip = () => {
+            showCancelTip.value = true;
+            if (cancelTipTimer) clearTimeout(cancelTipTimer);
+            cancelTipTimer = setTimeout(() => {
+                showCancelTip.value = false;
+            }, 2000);
+        };
 
         const getSkinDisplayPrice = (skinId) => {
             const skin = skinsData.find(s => s.id === skinId);
-            if (!useLuckyCard.value) return skin.price;
+            let price = skin.price;
             
-            const firstCheckedSkinId = checkedItemIds.value.find(id => id.startsWith('skin_'));
-            if (firstCheckedSkinId === skinId) {
-                return skin.price - 840;
+            if (useLuckyCard.value) {
+                const firstCheckedSkinId = checkedItemIds.value.find(id => id.startsWith('skin_'));
+                if (firstCheckedSkinId === skinId) price -= 840;
             }
-            return skin.price;
+            if (checkedKeyIds.value.includes(skin.keyId)) {
+                price += 99;
+            }
+            return price;
+        };
+
+        const getSkinOriginalPrice = (skinId) => {
+            const skin = skinsData.find(s => s.id === skinId);
+            let origPrice = skin.originalPrice;
+            if (checkedKeyIds.value.includes(skin.keyId)) {
+                origPrice += 188;
+            }
+            return origPrice;
         };
 
         const finalTotalPrice = computed(() => {
@@ -476,9 +523,7 @@ createApp({
             isBtnRefreshing.value = false;
             setTimeout(() => {
                 isBtnRefreshing.value = true;
-                setTimeout(() => {
-                    isBtnRefreshing.value = false;
-                }, 400); 
+                setTimeout(() => { isBtnRefreshing.value = false; }, 400); 
             }, 10);
         }, { deep: true });
 
@@ -502,9 +547,11 @@ createApp({
                 if (isBundleChecked.value) {
                     checkedItemIds.value = [];
                     checkedKeyIds.value = [];
+                    noSkinTipIds.value = [];
                 } else {
                     checkedItemIds.value = skinsData.map(s => s.id);
                     checkedKeyIds.value = keysData.map(k => k.id);
+                    noSkinTipIds.value = [];
                 }
                 return;
             }
@@ -512,8 +559,14 @@ createApp({
             const index = checkedItemIds.value.indexOf(id);
             if (index > -1) {
                 checkedItemIds.value.splice(index, 1);
+                const skin = skinsData.find(s => s.id === id);
+                if (skin && checkedKeyIds.value.includes(skin.keyId)) {
+                    checkedKeyIds.value = checkedKeyIds.value.filter(kId => kId !== skin.keyId);
+                    triggerCancelTip();
+                }
             } else {
                 checkedItemIds.value.push(id);
+                noSkinTipIds.value = noSkinTipIds.value.filter(tipId => tipId !== id);
             }
         };
 
@@ -521,9 +574,17 @@ createApp({
             const displayIds = currentDisplayKeys.value.map(k => k.id);
             if (isCurrentKeysChecked.value) {
                 checkedKeyIds.value = checkedKeyIds.value.filter(id => !displayIds.includes(id));
+                const skinIds = skinsData.filter(s => displayIds.includes(s.keyId)).map(s => s.id);
+                noSkinTipIds.value = noSkinTipIds.value.filter(id => !skinIds.includes(id));
             } else {
                 displayIds.forEach(id => {
-                    if (!checkedKeyIds.value.includes(id)) checkedKeyIds.value.push(id);
+                    if (!checkedKeyIds.value.includes(id)) {
+                        checkedKeyIds.value.push(id);
+                        const skin = skinsData.find(s => s.keyId === id);
+                        if (skin && !checkedItemIds.value.includes(skin.id)) {
+                            if (!noSkinTipIds.value.includes(skin.id)) noSkinTipIds.value.push(skin.id);
+                        }
+                    }
                 });
             }
         };
@@ -560,41 +621,21 @@ createApp({
             showConfirmModal.value = false;
             checkedItemIds.value = ['skin_1'];
             checkedKeyIds.value = [];
+            noSkinTipIds.value = [];
             currentPreviewId.value = 'skin_1';
             currentPreviewKeyId.value = null;
         };
 
-        const viewportRef = ref(null);
-        let isDragging = false;
-        let startX;
-        let scrollLeft;
-
-        const startDrag = (e) => {
-            isDragging = true;
-            startX = e.pageX - viewportRef.value.offsetLeft;
-            scrollLeft = viewportRef.value.scrollLeft;
-        };
-        const stopDrag = () => {
-            isDragging = false;
-        };
-        const onDrag = (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            const x = e.pageX - viewportRef.value.offsetLeft;
-            const walk = (x - startX) * 1.5; 
-            viewportRef.value.scrollLeft = scrollLeft - walk;
-        };
-
         return {
             showHome, showPurchaseModal, showConfirmModal, 
+            showCancelTip, noSkinTipIds,
             openPurchaseModal, closePurchaseModal,         
             currentPreviewId, currentPreviewKeyId, checkedItemIds, checkedKeyIds, 
             bundleData, skinsData, keysData, isBundleChecked,
-            currentDisplayPreviewImg, currentDisplayKeys, isCurrentKeysChecked, hasSkinChecked,
-            getSkinDisplayPrice, finalTotalPrice, finalOriginalPrice, finalCheckedItemsData,
+            currentDisplayPreviewImg, currentDisplayKeys, isCurrentKeysChecked, 
+            getSkinDisplayPrice, getSkinOriginalPrice, finalTotalPrice, finalOriginalPrice, finalCheckedItemsData,
             selectPreview, selectKeyPreview, toggleCheck, toggleCurrentKeys, openConfirmModal, executePurchase,
-            isBtnRefreshing,
-            viewportRef, startDrag, stopDrag, onDrag 
+            isBtnRefreshing
         };
     }
 }).mount('#app');
