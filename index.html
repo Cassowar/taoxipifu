@@ -87,6 +87,7 @@
 
             --confirm-btn-bottom: 150px;    /* 弹窗底部【确认购买按钮】距离弹窗底部的距离 */
             --confirm-btn-left: 0px;       /* 弹窗底部【确认购买按钮】的左右微调 (默认0，居中) */
+
         }
         /* ========================================================= */
 
@@ -280,7 +281,6 @@
                 <div class="preview-section">
                     <div class="recommend-keys">
                         <div class="key-list">
-                            <!-- 左侧统一的勾选框 -->
                             <div class="keys-all-checkbox" @click="toggleCurrentKeys">
                                 <img :src="isCurrentKeysChecked ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
                             </div>
@@ -300,6 +300,10 @@
                     <div class="items-container">
                         <div class="item-box bundle-box" @click="selectPreview(bundleData.id)">
                             <img src="frame_selected-2.png" class="frame-selected" v-if="currentPreviewId === bundleData.id && !currentPreviewKeyId">
+                            
+                            <!-- 🌟 新增：全套礼包的气泡提示 -->
+                            <img src="noskin_tips.png" class="noskin-tip" v-if="activeTipId === bundleData.id">
+
                             <div class="img-checkbox" @click.stop="toggleCheck(bundleData.id)">
                                 <img :src="isBundleChecked ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
                             </div>
@@ -310,7 +314,8 @@
                             <div class="item-box" v-for="skin in skinsData" :key="skin.id" @click="selectPreview(skin.id)">
                                 <img src="frame_selected.png" class="frame-selected" v-if="currentPreviewId === skin.id && !currentPreviewKeyId">
                                 
-                                <img src="noskin_tips.png" class="noskin-tip" v-if="noSkinTipIds.includes(skin.id)">
+                                <!-- 🌟 修改：单个皮肤的气泡提示，受 activeTipId 控制 -->
+                                <img src="noskin_tips.png" class="noskin-tip" v-if="activeTipId === skin.id">
 
                                 <div class="img-checkbox" @click.stop="toggleCheck(skin.id)">
                                     <img :src="checkedItemIds.includes(skin.id) ? 'icon_checkbox_checked.png' : 'icon_checkbox_normal.png'">
@@ -381,7 +386,9 @@ createApp({
         
         const showCancelTip = ref(false);
         let cancelTipTimer = null;
-        const noSkinTipIds = ref([]); 
+        
+        // 🌟 新增：气泡记忆栈，记录需要提示的皮肤ID顺序
+        const tipStack = ref([]); 
 
         const currentPreviewId = ref('skin_1');
         const currentPreviewKeyId = ref(null); 
@@ -395,7 +402,7 @@ createApp({
         const bundleData = { 
             id: 'bundle_1', name: '全套皮肤+按键礼包', 
             price: 7740, originalPrice: 10728, 
-            icon: 'icon_bundle.png', // 🌟 已修改为 icon_bundle.png
+            icon: 'icon_bundle.png', 
             previewImg: 'preview_bundle.png',
             previewImgNoKey: 'preview_bundle-2.png' 
         };
@@ -422,6 +429,19 @@ createApp({
             const allSkinsChecked = skinsData.every(skin => checkedItemIds.value.includes(skin.id));
             const allKeysChecked = keysData.every(key => checkedKeyIds.value.includes(key.id));
             return allSkinsChecked && allKeysChecked;
+        });
+
+        // 🌟 新增：计算当前应该显示哪个气泡
+        const activeTipId = computed(() => {
+            // 规则3：如果6个按键全选了，且全套礼包没有被勾选，则气泡显示在全套礼包上
+            if (checkedKeyIds.value.length === 6 && !isBundleChecked.value) {
+                return bundleData.id;
+            }
+            // 规则1 & 2：显示记忆栈里最后一个（最新）的皮肤气泡
+            if (tipStack.value.length > 0) {
+                return tipStack.value[tipStack.value.length - 1];
+            }
+            return null;
         });
 
         const currentDisplayPreviewImg = computed(() => {
@@ -540,6 +560,7 @@ createApp({
             return items;
         });
 
+        // 🌟 修改：皮肤勾选逻辑，联动气泡栈
         const toggleCheck = (id) => {
             selectPreview(id);
 
@@ -547,45 +568,78 @@ createApp({
                 if (isBundleChecked.value) {
                     checkedItemIds.value = [];
                     checkedKeyIds.value = [];
-                    noSkinTipIds.value = [];
+                    tipStack.value = []; // 清空气泡栈
                 } else {
                     checkedItemIds.value = skinsData.map(s => s.id);
                     checkedKeyIds.value = keysData.map(k => k.id);
-                    noSkinTipIds.value = [];
+                    tipStack.value = []; // 全选了，不需要气泡
                 }
                 return;
             }
 
             const index = checkedItemIds.value.indexOf(id);
             if (index > -1) {
+                // 取消勾选皮肤
                 checkedItemIds.value.splice(index, 1);
                 const skin = skinsData.find(s => s.id === id);
                 if (skin && checkedKeyIds.value.includes(skin.keyId)) {
                     checkedKeyIds.value = checkedKeyIds.value.filter(kId => kId !== skin.keyId);
                     triggerCancelTip();
+                    // 按键被取消了，所以从气泡栈里移除
+                    tipStack.value = tipStack.value.filter(tipId => tipId !== id);
                 }
             } else {
+                // 勾选皮肤
                 checkedItemIds.value.push(id);
-                noSkinTipIds.value = noSkinTipIds.value.filter(tipId => tipId !== id);
+                // 皮肤已勾选，从气泡栈里移除，露出上一个气泡
+                tipStack.value = tipStack.value.filter(tipId => tipId !== id);
             }
         };
 
+        // 🌟 修改：全选按键逻辑，联动气泡栈
         const toggleCurrentKeys = () => {
             const displayIds = currentDisplayKeys.value.map(k => k.id);
             if (isCurrentKeysChecked.value) {
+                // 取消全选
                 checkedKeyIds.value = checkedKeyIds.value.filter(id => !displayIds.includes(id));
                 const skinIds = skinsData.filter(s => displayIds.includes(s.keyId)).map(s => s.id);
-                noSkinTipIds.value = noSkinTipIds.value.filter(id => !skinIds.includes(id));
+                tipStack.value = tipStack.value.filter(id => !skinIds.includes(id));
             } else {
+                // 勾选全选
                 displayIds.forEach(id => {
                     if (!checkedKeyIds.value.includes(id)) {
                         checkedKeyIds.value.push(id);
                         const skin = skinsData.find(s => s.keyId === id);
                         if (skin && !checkedItemIds.value.includes(skin.id)) {
-                            if (!noSkinTipIds.value.includes(skin.id)) noSkinTipIds.value.push(skin.id);
+                            // 先移除旧的，再推入栈顶，保证最新
+                            tipStack.value = tipStack.value.filter(tipId => tipId !== skin.id);
+                            tipStack.value.push(skin.id);
                         }
                     }
                 });
+            }
+        };
+
+        // 🌟 修改：单个按键勾选逻辑，联动气泡栈
+        const toggleKeyCheck = (keyId) => {
+            selectKeyPreview(keyId);
+            const index = checkedKeyIds.value.indexOf(keyId);
+            const skin = skinsData.find(s => s.keyId === keyId);
+            
+            if (index > -1) {
+                // 取消勾选按键
+                checkedKeyIds.value.splice(index, 1);
+                if (skin) {
+                    tipStack.value = tipStack.value.filter(id => id !== skin.id);
+                }
+            } else {
+                // 勾选按键
+                checkedKeyIds.value.push(keyId);
+                if (skin && !checkedItemIds.value.includes(skin.id)) {
+                    // 先移除旧的，再推入栈顶，保证最新
+                    tipStack.value = tipStack.value.filter(id => id !== skin.id);
+                    tipStack.value.push(skin.id);
+                }
             }
         };
 
@@ -621,20 +675,20 @@ createApp({
             showConfirmModal.value = false;
             checkedItemIds.value = ['skin_1'];
             checkedKeyIds.value = [];
-            noSkinTipIds.value = [];
+            tipStack.value = [];
             currentPreviewId.value = 'skin_1';
             currentPreviewKeyId.value = null;
         };
 
         return {
             showHome, showPurchaseModal, showConfirmModal, 
-            showCancelTip, noSkinTipIds,
+            showCancelTip, activeTipId,
             openPurchaseModal, closePurchaseModal,         
             currentPreviewId, currentPreviewKeyId, checkedItemIds, checkedKeyIds, 
             bundleData, skinsData, keysData, isBundleChecked,
             currentDisplayPreviewImg, currentDisplayKeys, isCurrentKeysChecked, 
             getSkinDisplayPrice, getSkinOriginalPrice, finalTotalPrice, finalOriginalPrice, finalCheckedItemsData,
-            selectPreview, selectKeyPreview, toggleCheck, toggleCurrentKeys, openConfirmModal, executePurchase,
+            selectPreview, selectKeyPreview, toggleCheck, toggleKeyCheck, toggleCurrentKeys, openConfirmModal, executePurchase,
             isBtnRefreshing
         };
     }
